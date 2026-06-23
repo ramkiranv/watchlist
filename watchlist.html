@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>My Trading Watchlist</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css" />
+<style>
+  :root {
+    --bg: #f8f8f6;
+    --card: #ffffff;
+    --border: rgba(0,0,0,0.1);
+    --text: #1a1a1a;
+    --text2: #6b6b6b;
+    --text3: #aaaaaa;
+    --info-bg: #e6f1fb; --info-text: #0c447c;
+    --success-bg: #eaf3de; --success-text: #27500a;
+    --warn-bg: #faeeda; --warn-text: #633806;
+    --danger-bg: #fcebeb; --danger-text: #791f1f;
+    --other-bg: #f1efe8; --other-text: #444441;
+    --radius: 10px;
+    --accent: #378add;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1a1a1a; --card: #242424; --border: rgba(255,255,255,0.1);
+      --text: #f0f0f0; --text2: #aaaaaa; --text3: #666666;
+      --info-bg: #0c447c; --info-text: #b5d4f4;
+      --success-bg: #27500a; --success-text: #c0dd97;
+      --warn-bg: #633806; --warn-text: #fac775;
+      --danger-bg: #791f1f; --danger-text: #f7c1c1;
+      --other-bg: #2c2c2a; --other-text: #d3d1c7;
+    }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding: 0 0 3rem; }
+  header { background: var(--card); border-bottom: 0.5px solid var(--border); padding: 1rem 1.25rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; position: sticky; top: 0; z-index: 10; }
+  header h1 { font-size: 18px; font-weight: 600; }
+  header span { font-size: 13px; color: var(--text2); }
+  .container { max-width: 720px; margin: 0 auto; padding: 1.25rem 1rem; }
+  .toolbar { display: flex; gap: 8px; margin-bottom: 1rem; flex-wrap: wrap; align-items: center; }
+  select, input { font-size: 14px; padding: 8px 12px; border: 0.5px solid var(--border); border-radius: 8px; background: var(--card); color: var(--text); outline: none; }
+  select:focus, input:focus { border-color: var(--accent); }
+  .stock-card { background: var(--card); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 14px 16px; margin-bottom: 10px; transition: border-color 0.15s; }
+  .stock-card:hover { border-color: rgba(55,138,221,0.4); }
+  .card-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .card-left { display: flex; align-items: center; gap: 12px; }
+  .icon-box { width: 38px; height: 38px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; flex-shrink: 0; }
+  .stock-name { font-size: 15px; font-weight: 600; }
+  .stock-sym { font-size: 12px; color: var(--text2); font-weight: 400; }
+  .tag { font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 6px; display: inline-block; margin-top: 3px; }
+  .news-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+  .news-link { font-size: 12px; color: var(--accent); text-decoration: none; padding: 3px 8px; border: 0.5px solid var(--border); border-radius: 6px; display: inline-flex; align-items: center; gap: 4px; background: var(--bg); }
+  .news-link:hover { background: var(--info-bg); border-color: var(--accent); }
+  .note-input { font-size: 13px; border: 0.5px solid var(--border); border-radius: 8px; padding: 7px 10px; background: var(--bg); color: var(--text); width: 100%; margin-top: 10px; }
+  .note-input:focus { outline: none; border-color: var(--accent); }
+  .remove-btn { background: none; border: none; cursor: pointer; color: var(--text3); font-size: 18px; padding: 4px 6px; border-radius: 6px; line-height: 1; }
+  .remove-btn:hover { color: var(--danger-text); background: var(--danger-bg); }
+  .add-panel { background: var(--card); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 1rem 1.25rem; margin-top: 1rem; }
+  .add-panel h2 { font-size: 14px; font-weight: 600; margin-bottom: 10px; }
+  .add-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+  @media (max-width: 500px) { .add-grid { grid-template-columns: 1fr 1fr; } }
+  .add-btn { font-size: 13px; font-weight: 500; padding: 8px 18px; background: var(--accent); color: #fff; border: none; border-radius: 8px; cursor: pointer; }
+  .add-btn:hover { opacity: 0.88; }
+  .msg { font-size: 12px; margin-left: 10px; }
+  .empty { text-align: center; color: var(--text2); padding: 2rem; font-size: 14px; }
+  .market-bar { display: flex; gap: 10px; margin-bottom: 1rem; flex-wrap: wrap; }
+  .market-chip { font-size: 12px; background: var(--card); border: 0.5px solid var(--border); border-radius: 20px; padding: 5px 12px; color: var(--text2); text-decoration: none; display: inline-flex; align-items: center; gap: 5px; }
+  .market-chip:hover { border-color: var(--accent); color: var(--accent); }
+  .count-badge { font-size: 12px; color: var(--text2); }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1><i class="ti ti-chart-candle" style="vertical-align:-2px; margin-right:6px;"></i>My trading watchlist</h1>
+    <span id="hdr-sub">Loading...</span>
+  </div>
+  <span style="font-size:12px; color:var(--text3);" id="clock"></span>
+</header>
+
+<div class="container">
+
+  <div class="market-bar">
+    <a class="market-chip" href="https://www.nseindia.com" target="_blank"><i class="ti ti-external-link" style="font-size:12px;"></i>NSE India</a>
+    <a class="market-chip" href="https://www.moneycontrol.com/stocksmarketsindia/" target="_blank"><i class="ti ti-external-link" style="font-size:12px;"></i>Moneycontrol</a>
+    <a class="market-chip" href="https://economictimes.indiatimes.com/markets" target="_blank"><i class="ti ti-external-link" style="font-size:12px;"></i>ET Markets</a>
+    <a class="market-chip" href="https://www.investing.com/indices/s-p-cnx-nifty" target="_blank"><i class="ti ti-external-link" style="font-size:12px;"></i>Nifty live</a>
+    <a class="market-chip" href="https://groww.in/indices/nifty-50" target="_blank"><i class="ti ti-external-link" style="font-size:12px;"></i>Gift Nifty</a>
+  </div>
+
+  <div class="toolbar">
+    <select id="filter-sector" onchange="render()">
+      <option value="all">All sectors</option>
+      <option value="IT">IT</option>
+      <option value="Banking">Banking</option>
+      <option value="Energy">Energy</option>
+      <option value="Auto">Auto</option>
+      <option value="Other">Other</option>
+    </select>
+    <span class="count-badge" id="count-badge"></span>
+  </div>
+
+  <div id="watchlist-container"></div>
+
+  <div class="add-panel">
+    <h2><i class="ti ti-plus" style="vertical-align:-2px; margin-right:4px;"></i>Add a stock</h2>
+    <div class="add-grid">
+      <input id="new-symbol" placeholder="Symbol (e.g. INFY)" />
+      <input id="new-name" placeholder="Name (e.g. Infosys)" />
+      <select id="new-sector">
+        <option value="IT">IT</option>
+        <option value="Banking">Banking</option>
+        <option value="Energy">Energy</option>
+        <option value="Auto">Auto</option>
+        <option value="Other">Other</option>
+      </select>
+    </div>
+    <button class="add-btn" onclick="addStock()">Add to watchlist</button>
+    <span class="msg" id="add-msg"></span>
+  </div>
+
+</div>
+
+<script>
+const STORAGE_KEY = 'my_watchlist_v1';
+
+const sectorStyle = {
+  IT:      { bg: 'var(--info-bg)',    text: 'var(--info-text)' },
+  Banking: { bg: 'var(--success-bg)', text: 'var(--success-text)' },
+  Energy:  { bg: 'var(--warn-bg)',    text: 'var(--warn-text)' },
+  Auto:    { bg: 'var(--danger-bg)',  text: 'var(--danger-text)' },
+  Other:   { bg: 'var(--other-bg)',   text: 'var(--other-text)' },
+};
+
+const defaultStocks = [
+  { symbol: 'INFY',       name: 'Infosys',    sector: 'IT',      note: '' },
+  { symbol: 'TCS',        name: 'TCS',        sector: 'IT',      note: '' },
+  { symbol: 'WIPRO',      name: 'Wipro',      sector: 'IT',      note: '' },
+  { symbol: 'HDFCBANK',   name: 'HDFC Bank',  sector: 'Banking', note: '' },
+  { symbol: 'ICICIBANK',  name: 'ICICI Bank', sector: 'Banking', note: '' },
+  { symbol: 'SBIN',       name: 'SBI',        sector: 'Banking', note: '' },
+  { symbol: 'RELIANCE',   name: 'Reliance',   sector: 'Energy',  note: '' },
+  { symbol: 'ONGC',       name: 'ONGC',       sector: 'Energy',  note: '' },
+  { symbol: 'TATAMOTORS', name: 'Tata Motors',sector: 'Auto',    note: '' },
+];
+
+function load() {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    return saved ? JSON.parse(saved) : defaultStocks;
+  } catch(e) { return defaultStocks; }
+}
+
+function save() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(stocks)); } catch(e) {}
+}
+
+let stocks = load();
+
+function newsLinks(symbol, name) {
+  return [
+    { label: 'Moneycontrol', url: `https://www.moneycontrol.com/stocks/cptmarket/commsearchtxt.php?search_data=${encodeURIComponent(symbol)}` },
+    { label: 'ET Markets',   url: `https://economictimes.indiatimes.com/topic/${encodeURIComponent(name)}` },
+    { label: 'NSE',          url: `https://www.nseindia.com/get-quotes/equity?symbol=${encodeURIComponent(symbol)}` },
+    { label: 'Screener',     url: `https://www.screener.in/company/${encodeURIComponent(symbol)}/` },
+    { label: 'Google News',  url: `https://news.google.com/search?q=${encodeURIComponent(name + ' stock NSE')}` },
+  ];
+}
+
+function removeStock(symbol) {
+  stocks = stocks.filter(s => s.symbol !== symbol);
+  save();
+  render();
+}
+
+function updateNote(symbol, val) {
+  const s = stocks.find(x => x.symbol === symbol);
+  if (s) { s.note = val; save(); }
+}
+
+function render() {
+  const sector = document.getElementById('filter-sector').value;
+  const filtered = sector === 'all' ? stocks : stocks.filter(s => s.sector === sector);
+  const container = document.getElementById('watchlist-container');
+  document.getElementById('hdr-sub').textContent = `${stocks.length} stocks tracked`;
+  document.getElementById('count-badge').textContent = `${filtered.length} shown`;
+
+  if (filtered.length === 0) {
+    container.innerHTML = `<div class="empty">No stocks in this sector yet. Add one below.</div>`;
+    return;
+  }
+
+  container.innerHTML = filtered.map(s => {
+    const col = sectorStyle[s.sector] || sectorStyle['Other'];
+    const links = newsLinks(s.symbol, s.name);
+    const initials = s.symbol.slice(0, 3);
+    return `
+      <div class="stock-card">
+        <div class="card-top">
+          <div class="card-left">
+            <div class="icon-box" style="background:${col.bg}; color:${col.text};">${initials}</div>
+            <div>
+              <div class="stock-name">${s.name} <span class="stock-sym">· ${s.symbol}</span></div>
+              <span class="tag" style="background:${col.bg}; color:${col.text};">${s.sector}</span>
+            </div>
+          </div>
+          <button class="remove-btn" onclick="removeStock('${s.symbol}')" aria-label="Remove ${s.name}">
+            <i class="ti ti-x"></i>
+          </button>
+        </div>
+        <div class="news-row">
+          ${links.map(l => `<a class="news-link" href="${l.url}" target="_blank"><i class="ti ti-external-link" style="font-size:11px;"></i>${l.label}</a>`).join('')}
+        </div>
+        <input class="note-input" placeholder="Personal note — e.g. watch above ₹1060, support at ₹1030..." value="${s.note.replace(/"/g, '&quot;')}" oninput="updateNote('${s.symbol}', this.value)" />
+      </div>
+    `;
+  }).join('');
+}
+
+function addStock() {
+  const symbol = document.getElementById('new-symbol').value.trim().toUpperCase();
+  const name   = document.getElementById('new-name').value.trim();
+  const sector = document.getElementById('new-sector').value;
+  const msg    = document.getElementById('add-msg');
+
+  if (!symbol || !name) {
+    msg.style.color = 'var(--danger-text)';
+    msg.textContent = 'Please fill in symbol and name.';
+    return;
+  }
+  if (stocks.find(s => s.symbol === symbol)) {
+    msg.style.color = 'var(--danger-text)';
+    msg.textContent = 'Already in watchlist.';
+    return;
+  }
+  stocks.push({ symbol, name, sector, note: '' });
+  save();
+  document.getElementById('new-symbol').value = '';
+  document.getElementById('new-name').value = '';
+  msg.style.color = 'var(--success-text)';
+  msg.textContent = `${name} added!`;
+  setTimeout(() => msg.textContent = '', 2500);
+  render();
+}
+
+function updateClock() {
+  const now = new Date();
+  const time = now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+  const date = now.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' });
+  document.getElementById('clock').textContent = `${date} · ${time}`;
+}
+updateClock();
+setInterval(updateClock, 1000);
+
+render();
+</script>
+</body>
+</html>
